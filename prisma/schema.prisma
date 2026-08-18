@@ -1,0 +1,178 @@
+datasource db {
+  provider = "sqlite"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String         @id @default(uuid())
+  name         String
+  email        String?        @unique
+  phone        String         @unique
+  passwordHash String
+  role         String         @default("USER") // SUPER_ADMIN, ADMIN, VERIFIER, USER
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  registration Registration?
+}
+
+model Registration {
+  id               String        @id @default(uuid())
+  registrationId   String        @unique // e.g. REG-2026-001245
+  userId           String        @unique
+  user             User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  place            String?
+  gender           String?
+  dob              String?
+  institution      String?
+  course           String?
+  address          String?
+  profilePhoto     String?
+  customFieldsJson String?       // JSON object for additional custom fields
+  status           String        @default("PENDING_VERIFICATION") // PENDING_VERIFICATION, APPROVED, REJECTED
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  payments         Payment[]
+  attempts         QuizAttempt[]
+}
+
+model Payment {
+  id             String       @id @default(uuid())
+  registrationId String
+  registration   Registration @relation(fields: [registrationId], references: [registrationId], onDelete: Cascade)
+  amount         Float
+  currency       String       @default("INR")
+  transactionId  String       // UTR ID
+  screenshotUrl  String
+  driveFileId    String?
+  status         String       @default("PENDING") // PENDING, APPROVED, REJECTED
+  rejectionReason String?
+  submittedAt    DateTime     @default(now())
+  verifiedAt     DateTime?
+  verifiedBy     String?
+}
+
+model PaymentSettings {
+  id           String   @id @default("default")
+  feeAmount    Float    @default(100.0)
+  currency     String   @default("INR")
+  upiId        String   @default("quizpay@upi")
+  accountName  String   @default("Online Quiz Competition")
+  qrCodeUrl    String   @default("/qr-code.png")
+  instructions String   @default("Scan QR code using Google Pay, PhonePe, Paytm or any UPI app. Upload payment screenshot and enter 12-digit UTR/Transaction ID.")
+  active       Boolean  @default(true)
+  updatedAt    DateTime @updatedAt
+}
+
+model Quiz {
+  id                String        @id @default(uuid())
+  title             String
+  description       String?
+  instructions      String?
+  durationMinutes   Int           @default(15)
+  startDate         DateTime?
+  endDate           DateTime?
+  totalQuestions    Int           @default(0)
+  passingPercentage Float         @default(40.0)
+  negativeMarking   Boolean       @default(false)
+  showResults       Boolean       @default(true)
+  showAnswers       Boolean       @default(true)
+  showLeaderboard   Boolean       @default(true)
+  maxAttempts       Int           @default(1)
+  status            String        @default("ACTIVE") // DRAFT, SCHEDULED, ACTIVE, CLOSED, ARCHIVED
+  enableAntiCheat   Boolean       @default(true)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  questions         Question[]
+  attempts          QuizAttempt[]
+}
+
+model Question {
+  id            String   @id @default(uuid())
+  quizId        String
+  quiz          Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  questionText  String
+  optionA       String
+  optionB       String
+  optionC       String
+  optionD       String
+  correctAnswer String   // "A", "B", "C", "D"
+  marks         Float    @default(1.0)
+  negativeMarks Float    @default(0.0)
+  isMandatory   Boolean  @default(false)
+  category      String?
+  difficulty    String?  @default("Medium") // Easy, Medium, Hard
+  explanation   String?
+  imageUrl      String?
+  orderIndex    Int      @default(0)
+  answers       Answer[]
+}
+
+model QuizAttempt {
+  id               String    @id @default(uuid())
+  registrationId   String
+  registration     Registration @relation(fields: [registrationId], references: [registrationId], onDelete: Cascade)
+  quizId           String
+  quiz             Quiz      @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  startedAt        DateTime  @default(now())
+  expiresAt        DateTime
+  submittedAt      DateTime?
+  timeUsedSeconds  Int       @default(0)
+  score            Float     @default(0.0)
+  percentage       Float     @default(0.0)
+  correctCount     Int       @default(0)
+  wrongCount       Int       @default(0)
+  unansweredCount  Int       @default(0)
+  status           String    @default("IN_PROGRESS") // IN_PROGRESS, COMPLETED, EXPIRED
+  tabSwitchCount   Int       @default(0)
+  answers          Answer[]
+
+  @@index([registrationId, quizId])
+}
+
+model Answer {
+  id             String      @id @default(uuid())
+  attemptId      String
+  attempt        QuizAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  questionId     String
+  question       Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  selectedOption String?     // "A", "B", "C", "D" or null
+  isCorrect      Boolean?
+  marksAwarded   Float       @default(0.0)
+  savedAt        DateTime    @default(now())
+
+  @@unique([attemptId, questionId])
+}
+
+model GoogleIntegrationConfig {
+  id                  String   @id @default("default")
+  sheetId             String?
+  driveFolderId       String?
+  formUrl             String?
+  serviceAccountEmail String?
+  privateKey          String?
+  isConnected         Boolean  @default(false)
+  updatedAt           DateTime @updatedAt
+}
+
+model SyncLog {
+  id        String   @id @default(uuid())
+  timestamp DateTime @default(now())
+  operation String
+  recordId  String?
+  status    String   // SUCCESS, FAILED, PENDING
+  error     String?
+}
+
+model PlatformSettings {
+  id           String   @id @default("default")
+  platformName String   @default("PROQUIZ PLATFORM")
+  logoUrl      String?
+  faviconUrl   String?
+  primaryColor String   @default("#4F46E5")
+  contactEmail String   @default("support@proquiz.com")
+  contactPhone String   @default("+91 98765 43210")
+  updatedAt    DateTime @updatedAt
+}
