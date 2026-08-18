@@ -64,7 +64,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     });
 
     // Check for active IN_PROGRESS attempt
-    const activeAttempt = previousAttempts.find((a) => a.status === "IN_PROGRESS");
+    const activeAttempt = previousAttempts.find((a: any) => a.status === "IN_PROGRESS");
     const now = new Date();
 
     if (activeAttempt) {
@@ -86,7 +86,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     }
 
     // Check max attempts
-    const completedAttemptsCount = previousAttempts.filter((a) => a.status === "COMPLETED" || a.status === "EXPIRED").length;
+    const completedAttemptsCount = previousAttempts.filter((a: any) => a.status === "COMPLETED" || a.status === "EXPIRED").length;
     if (completedAttemptsCount >= quiz.maxAttempts) {
       return NextResponse.json(
         { error: `You have reached the maximum allowed attempts (${quiz.maxAttempts}) for this quiz.` },

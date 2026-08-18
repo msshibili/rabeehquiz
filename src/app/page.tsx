@@ -139,7 +139,7 @@ export default async function Home() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {quizzes.map((quiz) => (
+            {quizzes.map((quiz: any) => (
               <div
                 key={quiz.id}
                 className="rounded-2xl glass-card border border-slate-800/80 hover:border-indigo-500/40 p-6 flex flex-col justify-between transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-500/10 group"

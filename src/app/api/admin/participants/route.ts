@@ -38,7 +38,7 @@ export async function GET(req: Request) {
     });
 
     if (exportCsv) {
-      const csvData = registrations.map((r) => {
+      const csvData = registrations.map((r: any) => {
         const p = r.payments[0];
         const att = r.attempts[0];
         return {

@@ -21,7 +21,7 @@ export async function evaluateQuizAttempt(attemptId: string) {
   const timeUsedSeconds = Math.round((now.getTime() - startedAt.getTime()) / 1000);
 
   const questions = attempt.quiz.questions;
-  const answerMap = new Map(attempt.answers.map((a) => [a.questionId, a]));
+  const answerMap = new Map(attempt.answers.map((a: any) => [a.questionId, a]));
 
   let score = 0;
   let correctCount = 0;
