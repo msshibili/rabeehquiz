@@ -95,7 +95,10 @@ export async function PUT(req: Request) {
     }
 
     if (googleConfig) {
-      const isConn = !!(googleConfig.serviceAccountEmail && googleConfig.privateKey && googleConfig.sheetId);
+      const isConn = !!(
+        googleConfig.formUrl ||
+        (googleConfig.serviceAccountEmail && googleConfig.privateKey && googleConfig.sheetId)
+      );
       await db.googleIntegrationConfig.upsert({
         where: { id: "default" },
         update: {

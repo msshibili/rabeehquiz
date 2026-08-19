@@ -17,25 +17,36 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "No file uploaded." }, { status: 400 });
     }
 
-    const validTypes = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
-    if (!validTypes.includes(file.type)) {
-      return NextResponse.json({ error: "Invalid file type. Please upload a PNG, JPG, or WEBP image." }, { status: 400 });
+    // Accept various image MIME types including mobile formats (HEIC, HEIF, PNG, JPG, WEBP, etc.)
+    const validExtensions = ["png", "jpg", "jpeg", "webp", "heic", "heif", "bmp"];
+    
+    let ext = (file.name && file.name.includes(".") ? file.name.split(".").pop() || "" : "").toLowerCase();
+    const isMimeValid = file.type ? (file.type.startsWith("image/") || file.type === "application/octet-stream") : false;
+    const isExtValid = validExtensions.includes(ext);
+
+    if (!isMimeValid && !isExtValid) {
+      return NextResponse.json({ error: "Invalid file format. Please upload a PNG, JPG, WEBP, or HEIC screenshot image." }, { status: 400 });
     }
 
-    // Limit file size to 10MB
-    if (file.size > 10 * 1024 * 1024) {
-      return NextResponse.json({ error: "File size exceeds maximum limit of 10MB." }, { status: 400 });
+    // Determine clean extension for saving
+    if (!validExtensions.includes(ext)) {
+      if (file.type === "image/jpeg" || file.type === "image/jpg") ext = "jpg";
+      else if (file.type === "image/webp") ext = "webp";
+      else if (file.type === "image/heic" || file.type === "image/heif") ext = "heic";
+      else ext = "png";
+    }
+
+    // Limit file size to 20MB
+    if (file.size > 20 * 1024 * 1024) {
+      return NextResponse.json({ error: "File size exceeds maximum limit of 20MB." }, { status: 400 });
     }
 
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
     const uploadsDir = path.join(process.cwd(), "public", "uploads");
-    try {
-      await fs.mkdir(uploadsDir, { recursive: true });
-    } catch (err) {}
+    await fs.mkdir(uploadsDir, { recursive: true });
 
-    const ext = file.name.split(".").pop() || "png";
     const filename = `proof_${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
     const filePath = path.join(uploadsDir, filename);
 

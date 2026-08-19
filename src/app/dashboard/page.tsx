@@ -178,32 +178,32 @@ export default function DashboardPage() {
 
       {/* PAYMENT PROOF / FILE UPLOAD CARD */}
       {reg?.status !== "APPROVED" && (
-        <div className="p-8 rounded-3xl glass-card border border-amber-500/30 bg-gradient-to-r from-slate-900 via-amber-950/10 to-slate-900 space-y-6">
+        <div className="p-5 sm:p-8 rounded-3xl glass-card border border-amber-500/30 bg-gradient-to-r from-slate-900 via-amber-950/10 to-slate-900 space-y-6">
           <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
             <div className="space-y-2">
-              <div className="flex items-center gap-2 text-amber-400 font-bold text-sm">
-                <AlertCircle className="w-5 h-5" />
+              <div className="flex items-center gap-2 text-amber-400 font-bold text-sm sm:text-base">
+                <AlertCircle className="w-5 h-5 shrink-0" />
                 <span>Submit Payment Proof Screenshot & UTR Number</span>
               </div>
-              <p className="text-xs text-slate-300 max-w-xl leading-relaxed">
+              <p className="text-xs sm:text-sm text-slate-300 max-w-xl leading-relaxed">
                 {reg?.status === "REJECTED"
                   ? `Rejection Reason: ${latestPayment?.rejectionReason || "Invalid UTR or screenshot"}. Please re-upload your payment screenshot and 12-digit UTR ID.`
-                  : "Scan the QR code, pay ₹100 via UPI (Google Pay, PhonePe, Paytm), upload your screenshot image, and enter your 12-digit UTR number for verifier approval."}
+                  : "Scan the QR code below using Google Pay, PhonePe, or Paytm. Upload your payment screenshot and optional 12-digit UTR number for verifier approval."}
               </p>
             </div>
 
             {/* QR Code */}
             {paymentSettings && (
-              <div className="flex items-center gap-4 p-3 rounded-2xl bg-white/5 border border-white/10 shrink-0">
+              <div className="flex items-center gap-4 p-3.5 rounded-2xl bg-white/5 border border-white/10 shrink-0 w-full sm:w-auto">
                 <img
                   src={paymentSettings.qrCodeUrl}
                   alt="UPI QR Code"
-                  className="w-20 h-20 bg-white p-1 rounded-xl object-contain"
+                  className="w-20 h-20 bg-white p-1 rounded-xl object-contain shrink-0"
                 />
                 <div className="text-xs space-y-1">
-                  <span className="text-slate-400 block text-[10px]">UPI Payee</span>
-                  <span className="font-bold text-white block">{paymentSettings.upiId}</span>
-                  <span className="text-indigo-400 font-semibold block">Fee: ₹{paymentSettings.feeAmount}</span>
+                  <span className="text-slate-400 block text-[10px] uppercase font-semibold">UPI Payee</span>
+                  <span className="font-bold text-white block text-sm select-all">{paymentSettings.upiId}</span>
+                  <span className="text-indigo-400 font-bold block text-xs">Fee: ₹{paymentSettings.feeAmount} INR</span>
                 </div>
               </div>
             )}
@@ -211,72 +211,114 @@ export default function DashboardPage() {
 
           {paymentMsg && (
             <div
-              className={`p-4 rounded-xl text-xs flex items-center gap-2 ${
+              className={`p-4 rounded-xl text-xs sm:text-sm flex items-start sm:items-center gap-2.5 ${
                 paymentMsg.type === "success"
                   ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-400"
                   : "bg-red-500/10 border border-red-500/20 text-red-400"
               }`}
             >
-              <CheckCircle2 className="w-4 h-4" />
+              {paymentMsg.type === "success" ? (
+                <CheckCircle2 className="w-5 h-5 shrink-0" />
+              ) : (
+                <XCircle className="w-5 h-5 shrink-0" />
+              )}
               <span>{paymentMsg.text}</span>
             </div>
           )}
 
           {/* Submit UTR Form with File Upload */}
-          <form onSubmit={handlePaymentSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* File Selector */}
+          <form onSubmit={handlePaymentSubmit} className="space-y-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {/* Touch-Friendly File Selector Dropzone */}
               <div>
-                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
-                  Upload Payment Screenshot (.png, .jpg, .webp)
+                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
+                  Upload Payment Screenshot (.PNG, .JPG, .WEBP, .HEIC)
                 </label>
-                <div className="relative">
+                <div className="relative group">
                   <input
                     type="file"
-                    accept="image/png, image/jpeg, image/jpg, image/webp"
+                    id="screenshot-input"
+                    accept="image/*, .png, .jpg, .jpeg, .webp, .heic, .heif"
                     onChange={handleFileChange}
-                    className="w-full text-xs text-slate-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 cursor-pointer bg-slate-900 p-2 rounded-xl border border-slate-800"
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                   />
+                  <div className="p-4 rounded-2xl bg-slate-900/90 border-2 border-dashed border-slate-700 group-hover:border-indigo-500 transition-all text-center flex flex-col items-center justify-center gap-2 min-h-[110px]">
+                    <div className="w-10 h-10 rounded-full bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
+                      <Upload className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <span className="text-xs font-semibold text-white block">
+                        {selectedFile ? "Tap to Change Screenshot" : "Tap or Drag Screenshot Here"}
+                      </span>
+                      <span className="text-[11px] text-slate-400">Supports Mobile Gallery, Camera & Files (Max 20MB)</span>
+                    </div>
+                  </div>
                 </div>
               </div>
 
               {/* UTR Number Input */}
               <div>
-                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
-                  12-Digit UTR / Transaction ID (Optional if Screenshot Uploaded)
+                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
+                  12-Digit UTR / Transaction ID (Optional if Screenshot Attached)
                 </label>
                 <input
                   type="text"
                   value={transactionId}
                   onChange={(e) => setTransactionId(e.target.value)}
-                  placeholder="e.g. UTR202608189876 (optional if screenshot uploaded)"
-                  className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-800 focus:border-indigo-500 text-white placeholder-slate-500 text-xs outline-none"
+                  placeholder="e.g. 423910987654 (optional if screenshot attached)"
+                  className="w-full px-4 py-3.5 rounded-2xl bg-slate-900 border border-slate-800 focus:border-indigo-500 text-white placeholder-slate-500 text-xs sm:text-sm outline-none transition-all"
                 />
               </div>
             </div>
 
-            {/* Live Screenshot Preview */}
+            {/* Live Screenshot Preview Card */}
             {previewUrl && (
-              <div className="p-3 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-center gap-4">
-                <div className="w-16 h-16 rounded-xl bg-slate-950 overflow-hidden border border-slate-800 shrink-0">
-                  <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
+              <div className="p-3.5 rounded-2xl bg-indigo-950/20 border border-indigo-500/30 flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3.5 min-w-0">
+                  <div className="w-14 h-14 rounded-xl bg-slate-950 overflow-hidden border border-slate-800 shrink-0 flex items-center justify-center relative">
+                    <img
+                      src={previewUrl}
+                      alt="Screenshot Preview"
+                      className="w-full h-full object-cover"
+                      onError={(e: any) => {
+                        // Fallback for iOS HEIC/HEIF binary formats that browser cannot render natively in <img>
+                        e.target.style.display = "none";
+                        e.target.parentElement.innerHTML = '<div class="text-indigo-400 text-xs font-bold text-center px-1">IMG</div>';
+                      }}
+                    />
+                  </div>
+                  <div className="text-xs min-w-0">
+                    <span className="font-bold text-white block truncate">{selectedFile?.name}</span>
+                    <span className="text-indigo-300 text-[11px] font-medium block">
+                      {(selectedFile?.size ? selectedFile.size / 1024 : 0).toFixed(1)} KB • Screenshot Attached & Ready
+                    </span>
+                  </div>
                 </div>
-                <div className="text-xs">
-                  <span className="font-semibold text-white block">{selectedFile?.name}</span>
-                  <span className="text-slate-400 text-[11px]">
-                    {(selectedFile?.size ? selectedFile.size / 1024 : 0).toFixed(1)} KB • Ready for upload
-                  </span>
-                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedFile(null);
+                    setPreviewUrl(null);
+                  }}
+                  className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white shrink-0"
+                  title="Remove screenshot"
+                >
+                  <XCircle className="w-4 h-4" />
+                </button>
               </div>
             )}
 
             <button
               type="submit"
               disabled={submittingPayment || uploadingFile}
-              className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 disabled:opacity-50 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-lg shadow-indigo-600/30"
+              className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 disabled:opacity-50 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-lg shadow-indigo-600/30 active:scale-[0.98]"
             >
-              {submittingPayment ? (
-                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              {submittingPayment || uploadingFile ? (
+                <>
+                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span>{uploadingFile ? "Uploading Screenshot..." : "Submitting Verification..."}</span>
+                </>
               ) : (
                 <>
                   <Upload className="w-4 h-4" />
@@ -287,16 +329,16 @@ export default function DashboardPage() {
           </form>
 
           {latestPayment && (
-            <div className="pt-2 border-t border-slate-800/80 text-[11px] text-slate-400 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <span>Last Submitted UTR: <code className="text-indigo-300 font-bold">{latestPayment.transactionId}</code></span>
+            <div className="pt-3 border-t border-slate-800/80 text-xs text-slate-400 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <span>Last Submitted UTR: <code className="text-indigo-300 font-bold font-mono">{latestPayment.transactionId}</code></span>
               {latestPayment.driveFileId && (
                 <a
                   href={latestPayment.driveFileId}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-indigo-400 hover:underline font-semibold flex items-center gap-1"
+                  className="text-indigo-400 hover:underline font-semibold flex items-center gap-1.5"
                 >
-                  <ImageIcon className="w-3.5 h-3.5" /> View Uploaded Google Drive File
+                  <ImageIcon className="w-4 h-4" /> View Uploaded Google Drive File
                 </a>
               )}
             </div>

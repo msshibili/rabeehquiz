@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Award, User, LogOut, ShieldAlert, Sparkles, CheckCircle2, LayoutDashboard } from "lucide-react";
+import { Award, User, LogOut, ShieldAlert, Sparkles, CheckCircle2, LayoutDashboard, Menu, X } from "lucide-react";
 
 export function Navbar() {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     fetch("/api/auth/me")
@@ -32,14 +33,14 @@ export function Navbar() {
             <Award className="w-6 h-6" />
           </div>
           <div>
-            <span className="font-extrabold text-lg text-white tracking-tight flex items-center gap-1.5">
+            <span className="font-extrabold text-base sm:text-lg text-white tracking-tight flex items-center gap-1.5">
               BADRUL HUDA QUIZ
             </span>
-            <span className="text-[10px] text-slate-400 block tracking-widest uppercase">Online Competition Platform</span>
+            <span className="text-[9px] sm:text-[10px] text-slate-400 block tracking-widest uppercase">Online Competition Platform</span>
           </div>
         </Link>
 
-        {/* Navigation Links */}
+        {/* Desktop Navigation Links */}
         <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
           <Link href="/" className="text-slate-300 hover:text-white transition-colors">
             Home
@@ -61,20 +62,20 @@ export function Navbar() {
           )}
         </nav>
 
-        {/* User Auth Action Buttons */}
+        {/* Actions & Mobile Menu Toggle */}
         <div className="flex items-center gap-3">
           {loading ? (
-            <div className="w-24 h-8 bg-slate-800/60 animate-pulse rounded-lg" />
+            <div className="w-20 h-8 bg-slate-800/60 animate-pulse rounded-lg" />
           ) : currentUser ? (
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               <Link
                 href="/dashboard"
-                className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-500/40 text-indigo-300 text-sm font-medium transition-all"
+                className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-500/40 text-indigo-300 text-xs sm:text-sm font-medium transition-all"
               >
                 <LayoutDashboard className="w-4 h-4 text-indigo-400" />
                 <span>Dashboard</span>
                 {currentUser.registration?.status === "APPROVED" && (
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 ml-1" />
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
                 )}
               </Link>
 
@@ -90,21 +91,67 @@ export function Navbar() {
             <div className="flex items-center gap-2">
               <Link
                 href="/login"
-                className="px-4 py-2 text-sm font-medium text-slate-200 hover:text-white transition-colors"
+                className="px-3 py-1.5 text-xs sm:text-sm font-medium text-slate-200 hover:text-white transition-colors"
               >
                 Sign In
               </Link>
               <Link
                 href="/register"
-                className="px-4 py-2 text-sm font-semibold rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-lg shadow-indigo-600/25 transition-all hover:shadow-indigo-600/40 flex items-center gap-1.5"
+                className="px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-semibold rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-lg shadow-indigo-600/25 flex items-center gap-1.5"
               >
-                <Sparkles className="w-4 h-4" />
+                <Sparkles className="w-3.5 h-3.5" />
                 <span>Register</span>
               </Link>
             </div>
           )}
+
+          {/* Mobile Hamburger Toggle Button */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden p-2 rounded-xl text-slate-400 hover:text-white bg-slate-900 border border-slate-800"
+            aria-label="Toggle navigation menu"
+          >
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
         </div>
       </div>
+
+      {/* Mobile Drawer Dropdown */}
+      {mobileMenuOpen && (
+        <div className="md:hidden border-t border-slate-800 bg-slate-950/95 px-4 pt-3 pb-5 space-y-3 text-sm font-medium animate-in slide-in-from-top-2">
+          <Link
+            href="/"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block py-2 text-slate-300 hover:text-white border-b border-slate-900"
+          >
+            Home
+          </Link>
+          <Link
+            href="/#quizzes"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block py-2 text-slate-300 hover:text-white border-b border-slate-900"
+          >
+            Active Quizzes
+          </Link>
+          <Link
+            href="/#guidelines"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block py-2 text-slate-300 hover:text-white border-b border-slate-900"
+          >
+            Guidelines & Rewards
+          </Link>
+
+          {(currentUser?.role === "ADMIN" || currentUser?.role === "SUPER_ADMIN" || currentUser?.role === "VERIFIER") && (
+            <Link
+              href="/admin"
+              onClick={() => setMobileMenuOpen(false)}
+              className="inline-flex items-center gap-2 py-2 text-amber-400 font-semibold"
+            >
+              <ShieldAlert className="w-4 h-4" /> Admin Portal
+            </Link>
+          )}
+        </div>
+      )}
     </header>
   );
 }

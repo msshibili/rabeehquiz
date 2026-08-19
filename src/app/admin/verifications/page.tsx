@@ -230,16 +230,35 @@ export default function AdminVerificationsPage() {
 
             {/* Proof Image Box */}
             <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
-              <span className="text-xs text-slate-400 block font-semibold">Payment Proof Screenshot</span>
-              <div className="w-full h-48 bg-slate-950 rounded-xl flex items-center justify-center border border-slate-800 overflow-hidden relative">
-                <img
-                  src={selectedPayment.screenshotUrl || "/sample-payment-proof.png"}
-                  alt="Payment Proof"
-                  className="w-full h-full object-contain"
-                  onError={(e: any) => {
-                    e.target.src = "https://placehold.co/600x400/1e293b/ffffff?text=Payment+Screenshot+Proof";
-                  }}
-                />
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-slate-400 font-semibold">Payment Proof Screenshot</span>
+                {selectedPayment.screenshotUrl && (
+                  <a
+                    href={selectedPayment.screenshotUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-[11px] text-indigo-400 hover:text-indigo-300 font-semibold underline"
+                  >
+                    Open Full Image ↗
+                  </a>
+                )}
+              </div>
+              <div className="w-full h-56 bg-slate-950 rounded-xl flex items-center justify-center border border-slate-800 overflow-hidden relative group">
+                <a
+                  href={selectedPayment.screenshotUrl || "#"}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-full h-full flex items-center justify-center cursor-zoom-in"
+                >
+                  <img
+                    src={selectedPayment.screenshotUrl || "/sample-payment-proof.png"}
+                    alt="Payment Proof"
+                    className="w-full h-full object-contain transition-transform group-hover:scale-105"
+                    onError={(e: any) => {
+                      e.target.src = "https://placehold.co/600x400/1e293b/ffffff?text=Payment+Screenshot+Proof";
+                    }}
+                  />
+                </a>
               </div>
             </div>
 
