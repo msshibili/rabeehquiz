@@ -16,6 +16,8 @@ import {
   Image as ImageIcon,
 } from "lucide-react";
 
+import { compressImageIfNeeded } from "@/lib/image-compressor";
+
 export default function DashboardPage() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
@@ -34,7 +36,9 @@ export default function DashboardPage() {
   const fetchDashboardData = async () => {
     try {
       const meRes = await fetch("/api/auth/me");
-      const meData = await meRes.json();
+      const meText = await meRes.text();
+      let meData: any = {};
+      try { meData = JSON.parse(meText); } catch {}
 
       if (!meData.user) {
         router.push("/login");
@@ -44,12 +48,16 @@ export default function DashboardPage() {
 
       // Fetch payment settings
       const settingsRes = await fetch("/api/admin/settings");
-      const settingsData = await settingsRes.json();
+      const settingsText = await settingsRes.text();
+      let settingsData: any = {};
+      try { settingsData = JSON.parse(settingsText); } catch {}
       setPaymentSettings(settingsData.paymentSettings);
 
       // Fetch active quizzes
       const quizzesRes = await fetch("/api/admin/quizzes");
-      const quizzesData = await quizzesRes.json();
+      const quizzesText = await quizzesRes.text();
+      let quizzesData: any = {};
+      try { quizzesData = JSON.parse(quizzesText); } catch {}
       if (quizzesData.quizzes) {
         setQuizzes(quizzesData.quizzes.filter((q: any) => q.status === "ACTIVE"));
       }
@@ -64,11 +72,13 @@ export default function DashboardPage() {
     fetchDashboardData();
   }, []);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      setSelectedFile(file);
-      setPreviewUrl(URL.createObjectURL(file));
+      // Compress file automatically if larger than 1.5MB to prevent mobile payload errors
+      const processedFile = await compressImageIfNeeded(file);
+      setSelectedFile(processedFile);
+      setPreviewUrl(URL.createObjectURL(processedFile));
     }
   };
 
@@ -88,15 +98,28 @@ export default function DashboardPage() {
       // If a screenshot file was selected, upload it first
       if (selectedFile) {
         setUploadingFile(true);
+
+        // Ensure compression before upload
+        const fileToUpload = await compressImageIfNeeded(selectedFile);
         const uploadFormData = new FormData();
-        uploadFormData.append("file", selectedFile);
+        uploadFormData.append("file", fileToUpload);
 
         const uploadRes = await fetch("/api/upload", {
           method: "POST",
           body: uploadFormData,
         });
 
-        const uploadData = await uploadRes.json();
+        const uploadText = await uploadRes.text();
+        let uploadData: any = {};
+        try {
+          uploadData = JSON.parse(uploadText);
+        } catch {
+          if (uploadRes.status === 413) {
+            throw new Error("File size is too large for the server. Please select a smaller image under 4MB.");
+          }
+          throw new Error(`Upload server error (${uploadRes.status}): ${uploadText.slice(0, 80) || "Server returned non-JSON response"}`);
+        }
+
         if (!uploadRes.ok) throw new Error(uploadData.error || "Screenshot upload failed.");
         finalScreenshotUrl = uploadData.url;
         setUploadingFile(false);
@@ -112,7 +135,14 @@ export default function DashboardPage() {
         }),
       });
 
-      const data = await res.json();
+      const text = await res.text();
+      let data: any = {};
+      try {
+        data = JSON.parse(text);
+      } catch {
+        throw new Error(`Payment submit error (${res.status}): ${text.slice(0, 80) || "Server returned non-JSON response"}`);
+      }
+
       if (!res.ok) throw new Error(data.error || "Failed to submit payment");
 
       setPaymentMsg({ type: "success", text: data.message });
