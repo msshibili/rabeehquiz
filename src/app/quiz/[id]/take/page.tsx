@@ -237,61 +237,64 @@ export default function QuizTakePage({ params }: { params: Promise<{ id: string 
   const answeredCount = Object.keys(answersMap).length;
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col pb-20 md:pb-0">
       {/* TOP FLOATING TIMER HEADER */}
-      <header className="sticky top-0 z-40 glass-panel border-b border-slate-800 bg-slate-950/90 px-4 py-3">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="font-extrabold text-sm text-white tracking-tight">{quiz?.title}</span>
-            <span className="text-xs text-slate-400 hidden md:inline">
-              Question {currentIndex + 1} of {questions.length}
+      <header className="sticky top-0 z-40 glass-panel border-b border-slate-800 bg-slate-950/95 px-3 sm:px-6 py-2.5">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="font-extrabold text-xs sm:text-sm text-white tracking-tight truncate">{quiz?.title}</span>
+            <span className="text-xs text-slate-400 hidden sm:inline shrink-0">
+              ({currentIndex + 1}/{questions.length})
             </span>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4 shrink-0">
             {/* Anti-cheat tab switch badge */}
             {quiz?.enableAntiCheat && (
               <div
-                className={`px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 border ${
+                className={`px-2.5 py-1 rounded-full text-[11px] sm:text-xs font-semibold flex items-center gap-1 border ${
                   tabSwitchCount > 0
                     ? "bg-amber-500/10 text-amber-400 border-amber-500/30"
                     : "bg-slate-900 text-slate-400 border-slate-800"
                 }`}
               >
                 <ShieldAlert className="w-3.5 h-3.5" />
-                <span>Switches: {tabSwitchCount}/5</span>
+                <span className="hidden sm:inline">Switches: </span>
+                <span>{tabSwitchCount}/5</span>
               </div>
             )}
 
             {/* Countdown Timer */}
             <div
-              className={`px-4 py-1.5 rounded-xl font-mono text-sm font-bold flex items-center gap-2 border ${
+              className={`px-3 sm:px-4 py-1 rounded-xl font-mono text-xs sm:text-sm font-bold flex items-center gap-1.5 border ${
                 secondsRemaining < 120
                   ? "bg-red-500/20 text-red-400 border-red-500/40 animate-pulse"
                   : "bg-indigo-600/20 text-indigo-300 border-indigo-500/40"
               }`}
             >
-              <Clock className="w-4 h-4" />
+              <Clock className="w-3.5 h-3.5" />
               <span>{formatTime(secondsRemaining)}</span>
             </div>
 
+            {/* Top Submit Button */}
             <button
+              type="button"
               onClick={() => setShowSubmitModal(true)}
-              className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-md"
+              className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-emerald-600/20 shrink-0"
             >
               <Send className="w-3.5 h-3.5" />
-              <span>Submit Test</span>
+              <span>Submit</span>
             </button>
           </div>
         </div>
       </header>
 
       {/* MAIN TEST CONTAINER */}
-      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* QUESTION DISPLAY AREA (Left 3 cols) */}
         <div className="lg:col-span-3 space-y-6">
           {currentQ && (
-            <div className="p-8 rounded-3xl glass-panel border border-slate-800 space-y-6 relative">
+            <div className="p-5 sm:p-8 rounded-3xl glass-panel border border-slate-800 space-y-6 relative">
               {/* Question Header & Category */}
               <div className="flex items-center justify-between gap-4 border-b border-slate-800 pb-4">
                 <div className="flex items-center gap-2">
@@ -338,7 +341,7 @@ export default function QuizTakePage({ params }: { params: Promise<{ id: string 
                       onClick={() => handleSelectOption(currentQ.id, opt.key)}
                       className={`w-full p-4 rounded-2xl text-left font-medium text-xs sm:text-sm flex items-center justify-between transition-all border ${
                         isSelected
-                          ? "bg-indigo-600/25 border-indigo-500 text-white shadow-md shadow-indigo-600/10"
+                          ? "bg-indigo-600/30 border-indigo-500 ring-2 ring-indigo-500/50 text-white shadow-md shadow-indigo-600/20"
                           : "bg-slate-900/60 border-slate-800/80 hover:border-slate-700 text-slate-300 hover:text-white"
                       }`}
                     >
@@ -360,8 +363,8 @@ export default function QuizTakePage({ params }: { params: Promise<{ id: string 
                 })}
               </div>
 
-              {/* Navigation Controls Bottom Bar */}
-              <div className="pt-6 border-t border-slate-800 flex items-center justify-between">
+              {/* Navigation Controls Bottom Bar inside Card */}
+              <div className="pt-6 border-t border-slate-800 flex items-center justify-between gap-2">
                 <button
                   disabled={currentIndex === 0}
                   onClick={() => setCurrentIndex((prev) => prev - 1)}
@@ -370,7 +373,7 @@ export default function QuizTakePage({ params }: { params: Promise<{ id: string 
                   <ChevronLeft className="w-4 h-4" /> Previous
                 </button>
 
-                <span className="text-xs text-slate-400 font-medium">
+                <span className="text-xs text-slate-400 font-medium hidden sm:inline">
                   {savingMap[currentQ.id] ? (
                     <span className="text-amber-400 flex items-center gap-1">
                       <Save className="w-3.5 h-3.5 animate-spin" /> Saving...
@@ -384,13 +387,22 @@ export default function QuizTakePage({ params }: { params: Promise<{ id: string 
                   )}
                 </span>
 
-                <button
-                  disabled={currentIndex === questions.length - 1}
-                  onClick={() => setCurrentIndex((prev) => prev + 1)}
-                  className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-30 text-white font-semibold text-xs flex items-center gap-1.5 shadow-sm"
-                >
-                  Next <ChevronRight className="w-4 h-4" />
-                </button>
+                {currentIndex < questions.length - 1 ? (
+                  <button
+                    onClick={() => setCurrentIndex((prev) => prev + 1)}
+                    className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs flex items-center gap-1.5 shadow-sm"
+                  >
+                    Next <ChevronRight className="w-4 h-4" />
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => setShowSubmitModal(true)}
+                    className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-lg shadow-emerald-600/30"
+                  >
+                    <Send className="w-4 h-4" />
+                    <span>Submit Quiz</span>
+                  </button>
+                )}
               </div>
             </div>
           )}
@@ -399,7 +411,10 @@ export default function QuizTakePage({ params }: { params: Promise<{ id: string 
         {/* QUESTION PALETTE SIDEBAR (Right 1 col) */}
         <div className="space-y-6">
           <div className="p-6 rounded-3xl glass-card border border-slate-800 space-y-4">
-            <h3 className="text-xs font-bold text-white uppercase tracking-wider">Question Palette</h3>
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-bold text-white uppercase tracking-wider">Question Palette</h3>
+              <span className="text-xs text-indigo-400 font-semibold">{answeredCount}/{questions.length} Answered</span>
+            </div>
 
             {/* Questions Grid */}
             <div className="grid grid-cols-5 gap-2">
@@ -447,9 +462,52 @@ export default function QuizTakePage({ params }: { params: Promise<{ id: string 
                 <span>Mandatory Missing ({missingMandatoryCount})</span>
               </div>
             </div>
+
+            {/* Dedicated Submit Button on Question Palette Card */}
+            <button
+              onClick={() => setShowSubmitModal(true)}
+              className="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20 transition-all mt-4"
+            >
+              <Send className="w-4 h-4" />
+              <span>Submit Complete Quiz</span>
+            </button>
           </div>
         </div>
       </main>
+
+      {/* DEDICATED STICKY MOBILE BOTTOM BAR (Always visible on smartphone screens) */}
+      <div className="fixed bottom-0 inset-x-0 z-40 md:hidden bg-slate-950/95 border-t border-slate-800 p-3 backdrop-blur-lg flex items-center justify-between gap-2">
+        <button
+          disabled={currentIndex === 0}
+          onClick={() => setCurrentIndex((prev) => prev - 1)}
+          className="px-3.5 py-2 rounded-xl bg-slate-900 disabled:opacity-30 border border-slate-800 text-slate-300 font-semibold text-xs flex items-center gap-1"
+        >
+          <ChevronLeft className="w-4 h-4" /> Prev
+        </button>
+
+        <div className="text-center text-xs">
+          <span className="font-bold text-white block">Q{currentIndex + 1} of {questions.length}</span>
+          <span className="text-[10px] text-slate-400">
+            {answersMap[currentQ?.id] ? <span className="text-emerald-400">Saved</span> : "Unanswered"}
+          </span>
+        </div>
+
+        {currentIndex < questions.length - 1 ? (
+          <button
+            onClick={() => setCurrentIndex((prev) => prev + 1)}
+            className="px-4 py-2 rounded-xl bg-indigo-600 text-white font-semibold text-xs flex items-center gap-1"
+          >
+            Next <ChevronRight className="w-4 h-4" />
+          </button>
+        ) : (
+          <button
+            onClick={() => setShowSubmitModal(true)}
+            className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold text-xs flex items-center gap-1 shadow-md"
+          >
+            <Send className="w-3.5 h-3.5" /> Submit
+          </button>
+        )}
+      </div>
 
       {/* SECURITY TAB-SWITCH WARNING MODAL */}
       {showWarningModal && (
