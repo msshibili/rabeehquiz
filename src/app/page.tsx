@@ -86,7 +86,7 @@ export default async function Home() {
               <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1.5">
                 <TrendingUp className="w-3.5 h-3.5 text-emerald-400" /> Total Prize Pool
               </div>
-              <div className="text-2xl font-bold text-white">₹50,000+</div>
+              <div className="text-2xl font-bold text-white">₹1,000+</div>
               <div className="text-[11px] text-emerald-400 mt-1">Cash Prizes & Trophies</div>
             </div>
 
