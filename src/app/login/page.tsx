@@ -134,12 +134,6 @@ export default function LoginPage() {
           </div>
         </form>
 
-        {/* Demo Admin Info Helper */}
-        <div className="mt-6 p-3 rounded-xl bg-slate-900/50 border border-slate-800/80 text-[11px] text-slate-400 space-y-1">
-          <span className="font-semibold text-slate-300 block">Demo Credentials:</span>
-          <div>Admin: <code className="text-indigo-400">admin@proquiz.com</code> / <code className="text-indigo-400">admin123</code></div>
-          <div>User: <code className="text-indigo-400">john@example.com</code> / <code className="text-indigo-400">user123</code></div>
-        </div>
       </div>
     </div>
   );

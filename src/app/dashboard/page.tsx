@@ -421,7 +421,7 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-                {reg?.status === "APPROVED" ? (
+                {(user?.role === "ADMIN" || user?.role === "SUPER_ADMIN" || reg?.status === "APPROVED") ? (
                   <Link
                     href={`/quiz/${quiz.id}`}
                     className="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-md shadow-indigo-600/20"
@@ -430,12 +430,18 @@ export default function DashboardPage() {
                     <ArrowRight className="w-4 h-4" />
                   </Link>
                 ) : (
-                  <button
-                    disabled
-                    className="w-full py-3 rounded-xl bg-slate-800/80 text-slate-500 font-semibold text-xs flex items-center justify-center gap-2 cursor-not-allowed border border-slate-700/50"
-                  >
-                    <span>Awaiting Payment Verification</span>
-                  </button>
+                  <div className="space-y-2">
+                    <button
+                      disabled
+                      className="w-full py-3 rounded-xl bg-amber-500/10 text-amber-400 font-semibold text-xs flex items-center justify-center gap-2 cursor-not-allowed border border-amber-500/20"
+                    >
+                      <Clock className="w-4 h-4 animate-pulse" />
+                      <span>Awaiting Verifier Approval</span>
+                    </button>
+                    <span className="text-[11px] text-slate-400 block text-center">
+                      Payment proof submitted. Admin/Verifier will approve your registration shortly.
+                    </span>
+                  </div>
                 )}
               </div>
             ))}
