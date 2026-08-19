@@ -27,8 +27,8 @@ export async function POST(req: Request) {
     });
 
     let payment;
-    if (existingPayment && existingPayment.status === "REJECTED") {
-      // Re-submit payment
+    if (existingPayment) {
+      // Re-submit or update existing payment proof
       payment = await db.payment.update({
         where: { id: existingPayment.id },
         data: {

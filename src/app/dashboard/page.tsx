@@ -234,23 +234,28 @@ export default function DashboardPage() {
                 <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
                   Upload Payment Screenshot (.PNG, .JPG, .WEBP, .HEIC)
                 </label>
-                <div className="relative group">
+                <div
+                  onClick={() => document.getElementById("screenshot-file-input")?.click()}
+                  className="relative block w-full min-h-[120px] rounded-2xl bg-slate-900/90 border-2 border-dashed border-slate-700 hover:border-indigo-500 transition-all cursor-pointer p-4 text-center overflow-hidden group"
+                >
                   <input
                     type="file"
-                    id="screenshot-input"
+                    id="screenshot-file-input"
                     accept="image/*, .png, .jpg, .jpeg, .webp, .heic, .heif"
                     onChange={handleFileChange}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-30 block"
                   />
-                  <div className="p-4 rounded-2xl bg-slate-900/90 border-2 border-dashed border-slate-700 group-hover:border-indigo-500 transition-all text-center flex flex-col items-center justify-center gap-2 min-h-[110px]">
+                  <div className="pointer-events-none relative z-10 flex flex-col items-center justify-center gap-2 h-full min-h-[90px]">
                     <div className="w-10 h-10 rounded-full bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
                       <Upload className="w-5 h-5" />
                     </div>
                     <div>
-                      <span className="text-xs font-semibold text-white block">
-                        {selectedFile ? "Tap to Change Screenshot" : "Tap or Drag Screenshot Here"}
+                      <span className="text-xs font-bold text-white block">
+                        {selectedFile ? `Selected: ${selectedFile.name}` : "Tap Here to Choose Screenshot"}
                       </span>
-                      <span className="text-[11px] text-slate-400">Supports Mobile Gallery, Camera & Files (Max 20MB)</span>
+                      <span className="text-[11px] text-slate-400 block mt-0.5">
+                        {selectedFile ? "Tap again to change screenshot" : "Select from Gallery, Files or Camera"}
+                      </span>
                     </div>
                   </div>
                 </div>
